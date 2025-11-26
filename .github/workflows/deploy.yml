@@ -28,7 +28,7 @@ jobs:
           pip install pytest
 
       # NUEVO: Ejecutar pruebas
-      - name: Ejecutar pruebas
+      - name: Ejecutar pruebas (PyTests)
         run: |
           pytest tests
 
