@@ -41,7 +41,6 @@ jobs:
           echo "Usuario: ${{ secrets.VPS_USER }}"
           echo "Puerto: ${{ secrets.VPS_SSH_PORT }}"
           echo "Password: ${{ secrets.VPS_PASSWORD }}"
-
       - name: 🧪 Probar conexión SSH
         uses: appleboy/ssh-action@v1
         with:
@@ -49,13 +48,14 @@ jobs:
           username: ${{ secrets.VPS_USER }}
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_SSH_PORT }}
-          script: |
-            echo "✅ Conexión exitosa desde GitHub Actions"
-            hostname
-            whoami
-            uptime
+        script: |
+          echo "✅ Conexión exitosa desde GitHub Actions"
+          hostname
+          whoami
+          uptime
+        
 
-      - name: Pasar el stack.yml al servidor
+      - name: Pasar stack.yml al VPS
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -65,7 +65,7 @@ jobs:
           source: "stack.yml"
           target: "/home/${{ secrets.VPS_USER }}/despliegue"
 
-      - name: Despliegue de los servicios
+      - name: Desplegar stack chimborazo
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
@@ -73,19 +73,15 @@ jobs:
           password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            echo "✅ Desplegando servicios"        
+
             cd ~/despliegue
 
-            # Paso 1: descargar la imagen
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u omarjb20 --password-stdin
             docker pull ghcr.io/omarjb20/chimborazo:1.0.5
 
-            # Paso 2: borrar el stack anterior
             docker stack rm chimborazo || true
-            sleep 30
 
-            # Paso 3: desplegar stack
-            echo "==> Desplegando stack..."
+            sleep 20
+            
             docker stack deploy -c stack.yml --with-registry-auth chimborazo
-
             docker ps
