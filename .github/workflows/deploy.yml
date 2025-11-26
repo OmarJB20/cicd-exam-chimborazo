@@ -30,14 +30,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: chimborazo   # minúscula
+          username: omarjb20   # usuario GHCR correcto en minúscula
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🏗️ Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/chimborazo/chimborazo:1.0.5  # imagen con segundo apellido
+          tags: ghcr.io/omarjb20/chimborazo:1.0.5  # imagen correcta
 
   deploy:
     runs-on: ubuntu-latest
@@ -77,8 +77,8 @@ jobs:
             cd ~/despliegue
 
             # Login a GHCR y descargar imagen
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u chimborazo --password-stdin
-            docker pull ghcr.io/chimborazo/chimborazo:1.0.5
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u omarjb20 --password-stdin
+            docker pull ghcr.io/omarjb20/chimborazo:1.0.5
 
             # Remover stack anterior (si existe)
             docker stack rm chimborazo || true

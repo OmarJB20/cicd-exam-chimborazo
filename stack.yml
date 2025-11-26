@@ -2,7 +2,7 @@ version: "3.9"
 
 services:
   chimborazo:
-    image: ghcr.io/chimborazo/chimborazo:1.0.5
+    image: ghcr.io/omarjb20/chimborazo:1.0.5
     deploy:
       replicas: 1
       resources:
