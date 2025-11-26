@@ -21,10 +21,15 @@ jobs:
         with:
           python-version: "3.11"
 
-    
-      - name: 🧪 Correr Pruebas (PyTests)
+      # NUEVO: Instalar dependencias para ejecutar pruebas
+      - name: Instalar dependencias
         run: |
-          # Ejecuta las pruebas que están en la carpeta 'tests'
+          pip install -r requirements.txt
+          pip install pytest
+
+      # NUEVO: Ejecutar pruebas
+      - name: Ejecutar pruebas (PyTest)
+        run: |
           pytest tests
 
       - name: 🔐 Login to GitHub Container Registry
