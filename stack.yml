@@ -1,8 +1,8 @@
 version: "3.9"
 
 services:
-  santillan:
-    image: ghcr.io/omarjb20/santillan:1.0.5
+  chimborazo:
+    image: ghcr.io/chimborazo/chimborazo:1.0.5
     deploy:
       replicas: 1
       resources:
@@ -11,16 +11,16 @@ services:
           memory: 512M
       labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.santillan.entrypoints=http"
-        - "traefik.http.routers.santillan.rule=Host(`santillan.byronrm.com`)"
-        - "traefik.http.middlewares.santillan-https-redirect.redirectscheme.scheme=https"
-        - "traefik.http.routers.santillan.middlewares=santillan-https-redirect"
-        - "traefik.http.routers.santillan-secure.entrypoints=https"
-        - "traefik.http.routers.santillan-secure.rule=Host(`santillan.byronrm.com`)"
-        - "traefik.http.routers.santillan-secure.tls=true"
-        - "traefik.http.routers.santillan-secure.tls.certresolver=http"
-        - "traefik.http.routers.santillan-secure.service=santillan"
-        - "traefik.http.services.santillan.loadbalancer.server.port=5000"
+        - "traefik.http.routers.chimborazo.entrypoints=http"
+        - "traefik.http.routers.chimborazo.rule=Host(`chimborazo.byronrm.com`)"
+        - "traefik.http.middlewares.chimborazo-https-redirect.redirectscheme.scheme=https"
+        - "traefik.http.routers.chimborazo.middlewares=chimborazo-https-redirect"
+        - "traefik.http.routers.chimborazo-secure.entrypoints=https"
+        - "traefik.http.routers.chimborazo-secure.rule=Host(`chimborazo.byronrm.com`)"
+        - "traefik.http.routers.chimborazo-secure.tls=true"
+        - "traefik.http.routers.chimborazo-secure.tls.certresolver=http"
+        - "traefik.http.routers.chimborazo-secure.service=chimborazo"
+        - "traefik.http.services.chimborazo.loadbalancer.server.port=5000"
         - "traefik.docker.network=traefik-public"
 
     networks:

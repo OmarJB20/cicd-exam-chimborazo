@@ -1,9 +1,8 @@
-
-name: CI/CD - Santillan
+name: CI/CD - Chimborazo
 
 on:
   push:
-    branches: [ chimborazo ] 
+    branches: [ chimborazo ]  # Tu rama es tu segundo apellido
 
 permissions:
   contents: read
@@ -31,14 +30,14 @@ jobs:
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: ${{ github.actor }}
+          username: chimborazo   # minúscula
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🏗️ Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/santillan:1.0.5
+          tags: ghcr.io/chimborazo/chimborazo:1.0.5  # imagen con segundo apellido
 
   deploy:
     runs-on: ubuntu-latest
@@ -74,17 +73,17 @@ jobs:
           key: ${{ secrets.VPS_KEY }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            echo "✅ Desplegando stack santillan"
+            echo "✅ Desplegando stack chimborazo"
             cd ~/despliegue
 
             # Login a GHCR y descargar imagen
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.repository_owner }} --password-stdin
-            docker pull ghcr.io/${{ github.repository_owner }}/santillan:1.0.5
+            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u chimborazo --password-stdin
+            docker pull ghcr.io/chimborazo/chimborazo:1.0.5
 
             # Remover stack anterior (si existe)
-            docker stack rm santillan || true
+            docker stack rm chimborazo || true
             sleep 20
 
             # Desplegar stack con Traefik
-            docker stack deploy -c stack.yml --with-registry-auth santillan
+            docker stack deploy -c stack.yml --with-registry-auth chimborazo
             docker ps
