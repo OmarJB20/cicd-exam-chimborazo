@@ -32,7 +32,7 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/omarjb20/chimborazo:1.0.5  # imagen corregida
+          tags: ghcr.io/omarjb20/chimborazo:1.0.5
 
       - name: 🧾 Mostrar variables básicas (solo locales, no secretos)
         run: |
