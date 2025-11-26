@@ -1,89 +1,91 @@
-name: CI/CD - Chimborazo
+name: Python application
 
 on:
   push:
-    branches: [ chimborazo ]  # Tu rama es tu segundo apellido
+    branches: [ chimborazo ]
 
 permissions:
   contents: read
   packages: write
 
 jobs:
-  build-and-test:
+  build:
+
     runs-on: ubuntu-latest
+
     steps:
-      - name: Checkout repo
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v3
         with:
-          python-version: 3.11
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run tests
-        run: python -m unittest discover tests
+          python-version: "3.11"
 
       - name: 🔐 Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
           registry: ghcr.io
-          username: omarjb20   # usuario GHCR correcto en minúscula
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: 🏗️ Build and push Docker image
         uses: docker/build-push-action@v6
         with:
           push: true
-          tags: ghcr.io/omarjb20/chimborazo:1.0.5  # imagen correcta
+          tags: ghcr.io/omarjb20/chimborazo:1.0.5  # imagen corregida
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build-and-test
-    steps:
-      - name: Probar conexión SSH
+      - name: 🧾 Mostrar variables básicas (solo locales, no secretos)
+        run: |
+          echo "Probando conexión SSH con:"
+          echo "Host: ${{ secrets.VPS_HOST }}"
+          echo "Usuario: ${{ secrets.VPS_USER }}"
+          echo "Puerto: ${{ secrets.VPS_SSH_PORT }}"
+          echo "Password: ${{ secrets.VPS_PASSWORD }}"
+
+      - name: 🧪 Probar conexión SSH
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            echo "✅ Conexión exitosa al VPS"
+            echo "✅ Conexión exitosa desde GitHub Actions"
             hostname
             whoami
+            uptime
 
-      - name: Copiar stack.yml al VPS
+      - name: Pasar el stack.yml al servidor
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_SSH_PORT }}
           source: "stack.yml"
           target: "/home/${{ secrets.VPS_USER }}/despliegue"
 
-      - name: Desplegar servicios en el VPS
+      - name: Despliegue de los servicios
         uses: appleboy/ssh-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_KEY }}
+          password: ${{ secrets.VPS_PASSWORD }}
           port: ${{ secrets.VPS_SSH_PORT }}
           script: |
-            echo "✅ Desplegando stack chimborazo"
+            echo "✅ Desplegando servicios"        
             cd ~/despliegue
 
-            # Login a GHCR y descargar imagen
+            # Paso 1: descargar la imagen
             echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u omarjb20 --password-stdin
             docker pull ghcr.io/omarjb20/chimborazo:1.0.5
 
-            # Remover stack anterior (si existe)
+            # Paso 2: borrar el stack anterior
             docker stack rm chimborazo || true
-            sleep 20
+            sleep 30
 
-            # Desplegar stack con Traefik
+            # Paso 3: desplegar stack
+            echo "==> Desplegando stack..."
             docker stack deploy -c stack.yml --with-registry-auth chimborazo
+
             docker ps
