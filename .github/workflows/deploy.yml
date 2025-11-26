@@ -21,6 +21,12 @@ jobs:
         with:
           python-version: "3.11"
 
+    
+      - name: 🧪 Correr Pruebas (PyTests)
+        run: |
+          # Ejecuta las pruebas que están en la carpeta 'tests'
+          pytest tests
+
       - name: 🔐 Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
