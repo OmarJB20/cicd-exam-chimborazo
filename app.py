@@ -12,7 +12,7 @@ responses = [
 
 @app.route("/")
 def home():
-    return "API Flask con IA operativa (v1.0.5)"
+    return "EXAMEN DEVOPS"
 
 @app.route("/ia", methods=["POST"])
 def ia():
